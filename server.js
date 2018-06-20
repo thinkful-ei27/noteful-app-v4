@@ -7,6 +7,7 @@ const passport = require('passport');
 
 const { PORT, MONGODB_URI } = require('./config');
 const localStrategy = require('./passport/local');
+const jwtStrategy = require('./passport/jwt');
 
 const notesRouter = require('./routes/notes');
 const foldersRouter = require('./routes/folders');
@@ -30,11 +31,15 @@ app.use(express.json());
 
 // Utilize the given `strategy`
 passport.use(localStrategy);
+passport.use(jwtStrategy);
+
+// Protect endpoints using JWT Strategy
+const jwtAuth = passport.authenticate('jwt', { session: false, failWithError: true });
 
 // Mount routers
-app.use('/api/notes', notesRouter);
-app.use('/api/folders', foldersRouter);
-app.use('/api/tags', tagsRouter);
+app.use('/api/notes', jwtAuth, notesRouter);
+app.use('/api/folders', jwtAuth, foldersRouter);
+app.use('/api/tags', jwtAuth, tagsRouter);
 app.use('/api/users', usersRouter);
 app.use('/api', authRouter);
 
@@ -52,7 +57,7 @@ app.use((err, req, res, next) => {
     res.status(err.status).json(errBody);
   } else {
     res.status(500).json({ message: 'Internal Server Error' });
-    console.log(err.name === 'FakeError' ? '' : err);
+    if (err.name !== 'FakeError') { console.log(err); }
   }
 });
 
