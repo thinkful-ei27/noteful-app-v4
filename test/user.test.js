@@ -20,7 +20,7 @@ describe('Noteful API - Users', function () {
 
   before(function () {
     return mongoose.connect(TEST_MONGODB_URI)
-      .then(() => mongoose.connection.db.dropDatabase());
+      .then(() => User.deleteMany());
   });
 
   beforeEach(function () {
@@ -28,7 +28,7 @@ describe('Noteful API - Users', function () {
   });
 
   afterEach(function () {
-    return mongoose.connection.db.dropDatabase();
+    return User.deleteMany();
   });
 
   after(function () {
