@@ -11,7 +11,7 @@ const Tag = require('../models/tag');
 const { folders, notes, tags } = require('../db/data');
 
 console.log(`Connecting to mongodb at ${MONGODB_URI}`);
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true })
+mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
   .then(() => {
     console.info('Delete Data');
     return Promise.all([
@@ -21,7 +21,7 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true })
     ]);
   })
   .then(() => {
-    console.info('Seeding Database');
+    console.info('Seed Database');
     return Promise.all([
       Note.insertMany(notes),
       Folder.insertMany(folders),
@@ -30,7 +30,7 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true })
   })
   .then(results => {
     console.log('Inserted', results);
-    console.info('Disconnecting');
+    console.info('Disconnect');
     return mongoose.disconnect();
   })
   .catch(err => {
