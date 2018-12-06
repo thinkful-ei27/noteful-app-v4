@@ -174,7 +174,7 @@ router.put('/:id', (req, res, next) => {
 
   if (toUpdate.folderId === '') {
     delete toUpdate.folderId;
-    toUpdate.$unset = {folderId : 1};
+    toUpdate.$unset = { folderId: 1 };
   }
 
   Promise.all([
@@ -182,7 +182,7 @@ router.put('/:id', (req, res, next) => {
     validateTagIds(toUpdate.tags, userId)
   ])
     .then(() => {
-      return Note.findByIdAndUpdate(id, toUpdate, { new: true })
+      return Note.findOneAndUpdate({ _id: id, userId }, toUpdate, { new: true })
         .populate('tags');
     })
     .then(result => {

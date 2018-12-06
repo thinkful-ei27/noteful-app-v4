@@ -11,9 +11,9 @@ const app = require('../server');
 const Tag = require('../models/tag');
 const User = require('../models/user');
 const Note = require('../models/note');
-const { TEST_MONGODB_URI } = require('../config');
 
 const { notes, tags, users } = require('../db/data');
+const { TEST_MONGODB_URI, JWT_SECRET } = require('../config');
 
 chai.use(chaiHttp);
 const expect = chai.expect;
@@ -24,20 +24,20 @@ describe('Noteful API - Tags', function () {
   let user;
   let token;
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
-      .then(() => Promise.all([
-        Note.deleteMany(),
-        Tag.deleteMany(),
-        User.deleteMany()
-      ]));
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+      .then(() => Tag.createIndexes());
   });
 
   beforeEach(function () {
     return Promise.all([
+      User.insertMany(users),
       Tag.insertMany(tags),
-      Note.insertMany(notes),
-      User.insertMany(users)
-    ]);
+      Note.insertMany(notes)
+    ])
+      .then(([users]) => {
+        user = users[0];
+        token = jwt.sign({ user }, JWT_SECRET, { subject: user.username });
+      });
   });
 
   afterEach(function () {
@@ -50,14 +50,42 @@ describe('Noteful API - Tags', function () {
   });
 
   after(function () {
-    return mongoose.disconnect();
+    return mongoose.connection.db.dropDatabase()
+      .then(() => mongoose.disconnect());
   });
+
+  /*   before(function () {
+    return mongoose.connect(TEST_MONGODB_URI)
+      .then(() => mongoose.connection.db.dropDatabase());
+  });
+
+  beforeEach(function () {
+    return Promise.all([
+      User.insertMany(users),
+      Tag.insertMany(tags),
+      Tag.createIndexes(),
+      Note.insertMany(notes)
+    ])
+      .then(([users]) => {
+        user = users[0];
+        token = jwt.sign({ user }, JWT_SECRET, { subject: user.username });
+      });
+  });
+
+  afterEach(function () {
+    sandbox.restore();
+    return mongoose.connection.db.dropDatabase();
+  });
+
+  after(function () {
+    return mongoose.disconnect();
+  }); */
 
   describe('GET /api/tags', function () {
 
     it('should return the correct number of tags', function () {
       return Promise.all([
-        Tag.find(),
+        Tag.find({ userId: user.id }),
         chai.request(app)
           .get('/api/tags')
           .set('Authorization', `Bearer ${token}`)
@@ -72,7 +100,7 @@ describe('Noteful API - Tags', function () {
 
     it('should return a list sorted by name with the correct fields and values', function () {
       return Promise.all([
-        Tag.find().sort('name'),
+        Tag.find({ userId: user.id }).sort('name'),
         chai.request(app)
           .get('/api/tags')
           .set('Authorization', `Bearer ${token}`)
@@ -84,9 +112,10 @@ describe('Noteful API - Tags', function () {
           expect(res.body).to.have.length(data.length);
           res.body.forEach(function (item, i) {
             expect(item).to.be.a('object');
-            expect(item).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt');
+            expect(item).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt', 'userId');
             expect(item.id).to.equal(data[i].id);
             expect(item.name).to.equal(data[i].name);
+            expect(item.userId).to.equal(data[i].userId.toString());
             expect(new Date(item.createdAt)).to.eql(data[i].createdAt);
             expect(new Date(item.updatedAt)).to.eql(data[i].updatedAt);
           });
@@ -113,7 +142,7 @@ describe('Noteful API - Tags', function () {
 
     it('should return correct tags', function () {
       let data;
-      return Tag.findOne()
+      return Tag.findOne({ userId: user.id })
         .then(_data => {
           data = _data;
           return chai.request(app)
@@ -124,9 +153,10 @@ describe('Noteful API - Tags', function () {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.an('object');
-          expect(res.body).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt');
+          expect(res.body).to.have.keys('id', 'name', 'createdAt', 'updatedAt', 'userId');
           expect(res.body.id).to.equal(data.id);
           expect(res.body.name).to.equal(data.name);
+          expect(res.body.userId).to.equal(data.userId.toString());
           expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
           expect(new Date(res.body.updatedAt)).to.eql(data.updatedAt);
         });
@@ -186,12 +216,13 @@ describe('Noteful API - Tags', function () {
           expect(res).to.have.header('location');
           expect(res).to.be.json;
           expect(body).to.be.a('object');
-          expect(body).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt');
-          return Tag.findOne({ _id: body.id });
+          expect(body).to.have.keys('id', 'name', 'createdAt', 'updatedAt', 'userId');
+          return Tag.findOne({ userId: user.id, _id: body.id });
         })
         .then(data => {
           expect(body.id).to.equal(data.id);
           expect(body.name).to.equal(data.name);
+          expect(body.userId).to.equal(data.userId.toString());
           expect(new Date(body.createdAt)).to.eql(data.createdAt);
           expect(new Date(body.updatedAt)).to.eql(data.updatedAt);
         });
@@ -227,7 +258,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should return an error when given a duplicate name', function () {
-      return Tag.findOne()
+      return Tag.findOne({ userId: user.id })
         .then(data => {
           const newItem = { name: data.name };
           return chai.request(app)
@@ -266,7 +297,7 @@ describe('Noteful API - Tags', function () {
     it('should update the tag', function () {
       const updateItem = { name: 'Updated Name' };
       let data;
-      return Tag.findOne()
+      return Tag.findOne({ userId: user.id })
         .then(_data => {
           data = _data;
           return chai.request(app)
@@ -278,9 +309,10 @@ describe('Noteful API - Tags', function () {
           expect(res).to.have.status(200);
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
-          expect(res.body).to.have.all.keys('id', 'name', 'createdAt', 'updatedAt');
+          expect(res.body).to.have.keys('id', 'name', 'createdAt', 'updatedAt', 'userId');
           expect(res.body.id).to.equal(data.id);
           expect(res.body.name).to.equal(updateItem.name);
+          expect(res.body.userId).to.equal(data.userId.toString());
           expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
           // expect item to have been updated
           expect(new Date(res.body.updatedAt)).to.greaterThan(data.updatedAt);
@@ -315,7 +347,7 @@ describe('Noteful API - Tags', function () {
     it('should return an error when missing "name" field', function () {
       const updateItem = {};
       let data;
-      return Tag.findOne()
+      return Tag.findOne({ userId: user.id })
         .then(_data => {
           data = _data;
           return chai.request(app)
@@ -351,7 +383,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should return an error when given a duplicate name', function () {
-      return Tag.find().limit(2)
+      return Tag.find({ userId: user.id }).limit(2)
         .then(results => {
           const [item1, item2] = results;
           item1.name = item2.name;
@@ -393,7 +425,7 @@ describe('Noteful API - Tags', function () {
 
     it('should delete an existing tag and respond with 204', function () {
       let data;
-      return Tag.findOne()
+      return Tag.findOne({ userId: user.id })
         .then(_data => {
           data = _data;
           return chai.request(app)
@@ -403,7 +435,7 @@ describe('Noteful API - Tags', function () {
         .then(function (res) {
           expect(res).to.have.status(204);
           expect(res.body).to.be.empty;
-          return Tag.count({ _id: data.id });
+          return Tag.countDocuments({ _id: data.id });
         })
         .then(count => {
           expect(count).to.equal(0);
@@ -423,7 +455,7 @@ describe('Noteful API - Tags', function () {
         .then(function (res) {
           expect(res).to.have.status(204);
           expect(res.body).to.be.empty;
-          return Note.count({ tags: tagId });
+          return Note.countDocuments({ tags: tagId });
         })
         .then(count => {
           expect(count).to.equal(0);
