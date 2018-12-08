@@ -8,9 +8,9 @@ const Folder = require('../models/folder');
 const Tag = require('../models/tag');
 
 function validateFolderId(folderId, userId) {
-  if (folderId === undefined) {
-    return Promise.resolve();
-  }
+  // if (folderId === undefined) {
+  //   return Promise.resolve();
+  // }
 
   if (!mongoose.Types.ObjectId.isValid(folderId)) {
     const err = new Error('The `folderId` is not valid');
@@ -129,7 +129,9 @@ router.post('/', (req, res, next) => {
 
   const newNote = { title, content, folderId, tags, userId };
   if (newNote.folderId === '') {
-    delete newNote.folderId;
+    const err = new Error('Missing `folderId` in request body');
+    err.status = 400;
+    return next(err);
   }
 
   Promise.all([

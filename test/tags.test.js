@@ -123,7 +123,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws();
 
       return chai.request(app)
         .get('/api/tags')
@@ -183,7 +183,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws();
 
       return Tag.findOne()
         .then(data => {
@@ -275,7 +275,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws();
 
       const newItem = { name: 'newTag' };
       return chai.request(app)
@@ -401,7 +401,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Tag.schema.options.toJSON, 'transform').throws();
 
       const updateItem = { name: 'Updated Name' };
       return Tag.findOne()
@@ -473,7 +473,7 @@ describe('Noteful API - Tags', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(express.response, 'sendStatus').throws('FakeError');
+      sandbox.stub(express.response, 'sendStatus').throws();
       return Tag.findOne()
         .then(data => {
           return chai.request(app)

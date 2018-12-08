@@ -22,10 +22,10 @@ const sandbox = sinon.createSandbox();
 
 describe('Noteful API - Notes', function () {
 
-  let user = {};
-  let token;
+  let token, user, user2;
   before(function () {
     return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+      .then(() => mongoose.connection.db.dropDatabase())
       .then(() => Promise.all([
         Tag.createIndexes(),
         Folder.createIndexes()
@@ -41,6 +41,7 @@ describe('Noteful API - Notes', function () {
     ])
       .then(([users]) => {
         user = users[0];
+        user2 = users[1]
         token = jwt.sign({ user }, JWT_SECRET, { subject: user.username });
       });
   });
@@ -229,7 +230,7 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Note.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Note.schema.options.toJSON, 'transform').throws();
 
       return chai.request(app)
         .get('/api/notes')
@@ -291,7 +292,7 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Note.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Note.schema.options.toJSON, 'transform').throws();
       return Note.findOne()
         .then(data => {
           return chai.request(app)
@@ -308,25 +309,36 @@ describe('Noteful API - Notes', function () {
 
   });
 
-  describe('POST /api/notes', function () {
+  /*
+    √ folderId required, valid, ownership
+    folderId null
+    folderId ''
+    folderId NOT-VALID
+    folderId does not belong to you
+    folderId cannot be unset
+  */
+  describe.only('POST /api/notes', function () {
 
-    it('should create and return a new item when provided valid data', function () {
-      const newItem = {
-        title: 'The best article about cats ever!',
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...'
-      };
-      let res;
-      return chai.request(app)
-        .post('/api/notes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(newItem)
+    it('should create and return a new item when provided title and folderId', function () {
+      let newItem, res;
+      return Folder.findOne({ userId: user.id })
+        .then(result => {
+          newItem = {
+            title: 'The best article about cats ever!',
+            folderId: result.id
+          };
+          return chai.request(app)
+            .post('/api/notes')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newItem);
+        })
         .then(function (_res) {
           res = _res;
           expect(res).to.have.status(201);
           expect(res).to.have.header('location');
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
-          expect(res.body).to.have.all.keys('id', 'title', 'content', 'createdAt', 'updatedAt', 'tags', 'userId');
+          expect(res.body).to.have.all.keys('id', 'title', 'folderId', 'createdAt', 'updatedAt', 'tags', 'userId');
           return Note.findOne({ _id: res.body.id, userId: user.id });
         })
         .then(data => {
@@ -339,64 +351,42 @@ describe('Noteful API - Notes', function () {
         });
     });
 
-    it('should create and return a new item when provided valid title (content optional)', function () {
-      const newItem = {
-        title: 'The best article about cats ever!'
-      };
-      let res;
-      return chai.request(app)
-        .post('/api/notes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(newItem)
+    it('should create and return a new item when provided title, content, and folderId', function () {
+      let newItem, res;
+      return Folder.findOne({ userId: user.id })
+        .then(result => {
+          newItem = {
+            title: 'The best article about cats ever!',
+            content: 'Lorem ipsum dolor sit amet...',
+            folderId: result.id
+          };
+          return chai.request(app)
+            .post('/api/notes')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newItem);
+        })
         .then(function (_res) {
           res = _res;
           expect(res).to.have.status(201);
           expect(res).to.have.header('location');
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
-          expect(res.body).to.have.all.keys('id', 'title', 'createdAt', 'updatedAt', 'tags', 'userId');
-          return Note.findOne({ _id: res.body.id });
+          expect(res.body).to.have.all.keys('id', 'title', 'content', 'folderId', 'createdAt', 'updatedAt', 'tags', 'userId');
+          return Note.findOne({ _id: res.body.id, userId: user.id });
         })
         .then(data => {
           expect(res.body.id).to.equal(data.id);
           expect(res.body.title).to.equal(data.title);
-          expect(res.body.content).to.not.exist;
+          expect(res.body.content).to.equal(data.content);
+          expect(res.body.userId).to.equal(data.userId.toString());
           expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
           expect(new Date(res.body.updatedAt)).to.eql(data.updatedAt);
         });
     });
 
-    it('should create and return when folderId is an empty string', function () {
+    it('should return an error when missing "folderId" field', function () {
       const newItem = {
         title: 'The best article about cats ever!',
-        folderId: ''
-      };
-      let res;
-      return chai.request(app)
-        .post('/api/notes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(newItem)
-        .then(function (_res) {
-          res = _res;
-          expect(res).to.have.status(201);
-          expect(res).to.have.header('location');
-          expect(res).to.be.json;
-          expect(res.body).to.be.a('object');
-          expect(res.body).to.include.keys('id', 'title', 'createdAt', 'updatedAt', 'tags');
-          return Note.findOne({ _id: res.body.id });
-        })
-        .then(data => {
-          expect(res.body.id).to.equal(data.id);
-          expect(res.body.title).to.equal(data.title);
-          expect(res.body.folderId).to.not.exist;
-          expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
-          expect(new Date(res.body.updatedAt)).to.eql(data.updatedAt);
-        });
-    });
-
-    it('should return an error when missing "title" field', function () {
-      const newItem = {
-        content: 'Lorem ipsum dolor sit amet, sed do eiusmod tempor...'
       };
       return chai.request(app)
         .post('/api/notes')
@@ -406,16 +396,60 @@ describe('Noteful API - Notes', function () {
           expect(res).to.have.status(400);
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
+          expect(res.body.message).to.equal('The `folderId` is not valid');
+        });
+    });
+
+    it('should return an error when missing "folderId" empty string', function () {
+      const newItem = {
+        title: 'The best article about cats ever!',
+        folderId: ''
+      };
+      return chai.request(app)
+        .post('/api/notes')
+        .set('Authorization', `Bearer ${token}`)
+        .send(newItem)
+        .then(res => {
+          expect(res).to.have.status(400);
+          expect(res).to.be.json;
+          expect(res.body).to.be.a('object');
+          expect(res.body.message).to.equal('Missing `folderId` in request body');
+        });
+    });
+
+    it('should return an error when missing "title" field', function () {
+      let newItem;
+      return Folder.findOne({ userId: user.id })
+        .then(result => {
+          newItem = {
+            folderId: result.id
+          };
+          return chai.request(app)
+            .post('/api/notes')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newItem);
+        })
+        .then(res => {
+          expect(res).to.have.status(400);
+          expect(res).to.be.json;
+          expect(res.body).to.be.a('object');
           expect(res.body.message).to.equal('Missing `title` in request body');
         });
     });
 
     it('should return an error when "title" is empty string', function () {
-      const newItem = { title: '' };
-      return chai.request(app)
-        .post('/api/notes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(newItem)
+      let newItem;
+      return Folder.findOne({ userId: user.id })
+        .then(result => {
+          newItem = {
+            title: '',
+            folderId: result.id
+          };
+          return chai.request(app)
+            .post('/api/notes')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newItem);
+        })
         .then(res => {
           expect(res).to.have.status(400);
           expect(res).to.be.json;
@@ -427,7 +461,6 @@ describe('Noteful API - Notes', function () {
     it('should return an error when `folderId` is not valid ', function () {
       const newItem = {
         title: 'What about dogs?!',
-        content: 'Lorem ipsum dolor sit amet, sed do eiusmod tempor...',
         folderId: 'NOT-A-VALID-ID'
       };
       return chai.request(app)
@@ -442,16 +475,43 @@ describe('Noteful API - Notes', function () {
         });
     });
 
+    it('should create and return a new item when provided title and folderId', function () {
+      let newItem;
+      return Folder.findOne({ userId: user2.id })
+        .then(result => {
+          newItem = {
+            title: 'The best article about cats ever!',
+            folderId: result.id
+          };
+          return chai.request(app)
+            .post('/api/notes')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newItem);
+        })
+        .then(res => {
+          expect(res).to.have.status(400);
+          expect(res).to.be.json;
+          expect(res.body).to.be.a('object');
+          expect(res.body.message).to.equal('The `folderId` is not valid');
+        });
+    });
+
     it('should return an error when a tag `id` is not valid ', function () {
-      const newItem = {
-        title: 'What about dogs?!',
-        content: 'Lorem ipsum dolor sit amet, sed do eiusmod tempor...',
-        tags: ['NOT-A-VALID-ID']
-      };
-      return chai.request(app)
-        .post('/api/notes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(newItem)
+
+      let newItem;
+      return Folder.findOne({ userId: user.id })
+        .then(result => {
+          newItem = {
+            title: 'The best article about cats ever!',
+            content: 'Lorem ipsum dolor sit amet...',
+            folderId: result.id,
+            tags: ['NOT-A-VALID-ID']
+          };
+          return chai.request(app)
+            .post('/api/notes')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newItem);
+        })
         .then(res => {
           expect(res).to.have.status(400);
           expect(res).to.be.json;
@@ -461,17 +521,21 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Note.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Note.schema.options.toJSON, 'transform').throws();
 
-      const newItem = {
-        title: 'The best article about cats ever!',
-        content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor...'
-      };
-
-      return chai.request(app)
-        .post('/api/notes')
-        .set('Authorization', `Bearer ${token}`)
-        .send(newItem)
+      let newItem;
+      return Folder.findOne({ userId: user.id })
+        .then(result => {
+          newItem = {
+            title: 'The best article about cats ever!',
+            content: 'Lorem ipsum dolor sit amet...',
+            folderId: result.id
+          };
+          return chai.request(app)
+            .post('/api/notes')
+            .set('Authorization', `Bearer ${token}`)
+            .send(newItem);
+        })
         .then(res => {
           expect(res).to.have.status(500);
           expect(res).to.be.json;
@@ -719,7 +783,7 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Note.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Note.schema.options.toJSON, 'transform').throws();
 
       const updateItem = {
         title: 'What about dogs?!',
@@ -773,7 +837,7 @@ describe('Noteful API - Notes', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(express.response, 'sendStatus').throws('FakeError');
+      sandbox.stub(express.response, 'sendStatus').throws();
       return Note.findOne()
         .then(data => {
           return chai.request(app)

@@ -94,7 +94,7 @@ describe('Noteful API - Folders', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws();
       return chai.request(app).get('/api/folders')
         .set('Authorization', `Bearer ${token}`)
         .then(res => {
@@ -151,7 +151,7 @@ describe('Noteful API - Folders', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws();
 
       let data;
       return Folder.findOne()
@@ -243,7 +243,7 @@ describe('Noteful API - Folders', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws();
 
       const newItem = { name: 'newFolder' };
       return chai.request(app)
@@ -368,7 +368,7 @@ describe('Noteful API - Folders', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws('FakeError');
+      sandbox.stub(Folder.schema.options.toJSON, 'transform').throws();
 
       const updateItem = { name: 'Updated Name' };
       let data;
@@ -440,7 +440,7 @@ describe('Noteful API - Folders', function () {
     });
 
     it('should catch errors and respond properly', function () {
-      sandbox.stub(express.response, 'sendStatus').throws('FakeError');
+      sandbox.stub(express.response, 'sendStatus').throws();
       return Folder.findOne()
         .then(data => {
           return chai.request(app)
