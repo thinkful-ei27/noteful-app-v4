@@ -124,7 +124,7 @@ router.delete('/:id', (req, res, next) => {
     return next(err);
   }
 
-  const folderRemovePromise = Folder.findOneAndRemove({ _id: id, userId });
+  const folderRemovePromise = Folder.findOneAndDelete({ _id: id, userId });
 
   const noteRemovePromise = Note.updateMany(
     { folderId: id, userId },
