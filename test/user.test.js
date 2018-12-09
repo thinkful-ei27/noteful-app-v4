@@ -75,7 +75,7 @@ describe("Noteful API - Users", function () {
 
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("Missing 'username' in request body");
+          expect(res.body.message).to.equal("Field 'username' is required");
         });
     });
 
@@ -87,7 +87,7 @@ describe("Noteful API - Users", function () {
 
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("Missing 'password' in request body");
+          expect(res.body.message).to.equal("Field 'password' is required");
         });
     });
 
@@ -99,7 +99,7 @@ describe("Noteful API - Users", function () {
 
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("Field: 'username' must be type String");
+          expect(res.body.message).to.equal("Field: 'username' must be a String");
         });
     });
 
@@ -111,7 +111,7 @@ describe("Noteful API - Users", function () {
 
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("Field: 'password' must be type String");
+          expect(res.body.message).to.equal("Field: 'password' must be a String");
         });
     });
 
@@ -123,7 +123,7 @@ describe("Noteful API - Users", function () {
 
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("Field: 'username' cannot start or end with whitespace");
+          expect(res.body.message).to.equal("Field: 'username' must not begin or end with whitespace");
         });
     });
 
@@ -135,7 +135,7 @@ describe("Noteful API - Users", function () {
 
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("Field: 'password' cannot start or end with whitespace");
+          expect(res.body.message).to.equal("Field: 'password' must not begin or end with whitespace");
         });
     });
 
@@ -147,7 +147,7 @@ describe("Noteful API - Users", function () {
 
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("Field: 'username' must be at least 1 characters long");
+          expect(res.body.message).to.equal("Field: 'username' must be min 1 characters");
         });
     });
 
@@ -159,7 +159,7 @@ describe("Noteful API - Users", function () {
 
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("Field: 'password' must be at least 8 characters long");
+          expect(res.body.message).to.equal("Field: 'password' must be min 8 characters");
         });
     });
 
@@ -171,7 +171,7 @@ describe("Noteful API - Users", function () {
 
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("Field: 'password' must be at most 72 characters long");
+          expect(res.body.message).to.equal("Field: 'password' must be max 72 characters");
         });
     });
 
@@ -190,7 +190,7 @@ describe("Noteful API - Users", function () {
         })
         .then(res => {
           expect(res).to.have.status(409);
-          expect(res.body.message).to.equal("The username already exists");
+          expect(res.body.message).to.equal(`Resource '${username}' must be unique`);
         });
     });
 

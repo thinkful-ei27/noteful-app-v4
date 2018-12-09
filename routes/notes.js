@@ -98,7 +98,7 @@ router.get("/:id", (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = createError(400, "The `id` is not valid");
+    const err = createError(400, "Field 'id' must be a Mongo ObjectId");
     return next(err);
   }
 
@@ -173,7 +173,7 @@ router.put("/:id", (req, res, next) => {
   }
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = createError(400, "The `id` is not valid");
+    const err = createError(400, "Field 'id' must be a Mongo ObjectId");
     return next(err);
   }
 
@@ -214,7 +214,7 @@ router.delete("/:id", (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = createError(400, "The `id` is not valid");
+    const err = createError(400, "Field 'id' must be a Mongo ObjectId");
     return next(err);
   }
 

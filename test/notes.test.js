@@ -280,7 +280,7 @@ describe("Noteful API - Notes", function () {
         .set("Authorization", `Bearer ${token}`)
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("The `id` is not valid");
+          expect(res.body.message).to.equal("Field 'id' must be a Mongo ObjectId");
         });
     });
 
@@ -682,7 +682,7 @@ describe("Noteful API - Notes", function () {
         .send(updateItem)
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("The `id` is not valid");
+          expect(res.body.message).to.equal("Field 'id' must be a Mongo ObjectId");
         });
     });
 
@@ -808,7 +808,7 @@ describe("Noteful API - Notes", function () {
         .set("Authorization", `Bearer ${token}`)
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("The `id` is not valid");
+          expect(res.body.message).to.equal("Field 'id' must be a Mongo ObjectId");
         });
     });
 

@@ -46,13 +46,20 @@
 * [X] Abstract key packages into custom middleware for easier composition
     * [X] Move logger to middlewares
     * [X] Move auth to middlewares
-  * [_] Create custom middleware replacement for Passport
+* [_] Create custom middleware replacement for Passport
 * [_] Move Registration Validation to middleware
 * [_] Add tests to repo to each solution branch
 * [_] Consistent username/password for seed users
 
 * [X] Clean up the error handling objects (POJO or CustomError)
-* [_] Consistent informative error objects
+* [_] Consistent informative error objects {status, name, message}
+
+    * [X] Required: 400 "Field '${key}' is required"
+    * [X] NotValid: 400 "Field '${key}' must be a(n) ${type}"
+    * [X] Duplicate: 409 "Resource '${key}' must be unique"
+    * [X] NotFound: 404 "Not Found"
+    * [X] Unauthorized: 401 "Unauthorized"
+
 * [X] [Error Status](https://tools.ietf.org/html/rfc7231)
     * 400 Bad Request We use as generic bad request
     * 401 Authentication error UN/PW supplied but invalid

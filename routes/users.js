@@ -13,7 +13,7 @@ router.post("/", (req, res, next) => {
   const missingField = requiredFields.find(field => !(field in req.body));
 
   if (missingField) {
-    const err = createError(400, `Missing '${missingField}' in request body`);
+    const err = createError(400, `Field '${missingField}' is required`);
     return next(err);
   }
 
@@ -23,7 +23,7 @@ router.post("/", (req, res, next) => {
   );
 
   if (nonStringField) {
-    const err = createError(400, `Field: '${nonStringField}' must be type String`);
+    const err = createError(400, `Field: '${nonStringField}' must be a String`);
     return next(err);
   }
 
@@ -40,7 +40,7 @@ router.post("/", (req, res, next) => {
   );
 
   if (nonTrimmedField) {
-    const err = createError(400, `Field: '${nonTrimmedField}' cannot start or end with whitespace`);
+    const err = createError(400, `Field: '${nonTrimmedField}' must not begin or end with whitespace`);
     return next(err);
   }
 
@@ -57,7 +57,7 @@ router.post("/", (req, res, next) => {
   );
   if (tooSmallField) {
     const min = sizedFields[tooSmallField].min;
-    const err = createError(400, `Field: '${tooSmallField}' must be at least ${min} characters long`);
+    const err = createError(400, `Field: '${tooSmallField}' must be min ${min} characters`);
     return next(err);
   }
 
@@ -68,7 +68,7 @@ router.post("/", (req, res, next) => {
 
   if (tooLargeField) {
     const max = sizedFields[tooLargeField].max;
-    const err = createError(400, `Field: '${tooLargeField}' must be at most ${max} characters long`);
+    const err = createError(400, `Field: '${tooLargeField}' must be max ${max} characters`);
     return next(err);
   }
 
@@ -90,7 +90,7 @@ router.post("/", (req, res, next) => {
     })
     .catch(err => {
       if (err.code === 11000) {
-        err = createError(409, "The username already exists");
+        err = createError(409, `Resource '${username}' must be unique`);
       }
       next(err);
     });

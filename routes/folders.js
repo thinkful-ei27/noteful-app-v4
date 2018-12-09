@@ -32,7 +32,7 @@ router.get("/:id", (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = createError(400, "The `id` is not valid");
+    const err = createError(400, "Field 'id' must be a Mongo ObjectId");
     return next(err);
   }
 
@@ -58,7 +58,7 @@ router.post("/", (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!name) {
-    const err = createError(400, "Missing `name` in request body");
+    const err = createError(400, "Field 'name' is required");
     return next(err);
   }
 
@@ -68,7 +68,7 @@ router.post("/", (req, res, next) => {
     })
     .catch(err => {
       if (err.code === 11000) {
-        err = createError(409, "Folder name already exists");
+        err = createError(409, `Resource '${name}' must be unique`);
       }
       next(err);
     });
@@ -82,12 +82,12 @@ router.put("/:id", (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = createError(400, "The `id` is not valid");
+    const err = createError(400, "Field 'id' must be a Mongo ObjectId");
     return next(err);
   }
 
   if (!name) {
-    const err = createError(400, "Missing `name` in request body");
+    const err = createError(400, "Field 'name' is required");
     return next(err);
   }
 
@@ -103,7 +103,7 @@ router.put("/:id", (req, res, next) => {
     })
     .catch(err => {
       if (err.code === 11000) {
-        err = createError(409, "Folder name already exists");
+        err = createError(409, `Resource '${name}' must be unique`);
       }
       next(err);
     });
@@ -116,7 +116,7 @@ router.delete("/:id", (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = createError(400, "The `id` is not valid");
+    const err = createError(400, "Field 'id' must be a Mongo ObjectId");
     return next(err);
   }
 

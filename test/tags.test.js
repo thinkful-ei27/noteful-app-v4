@@ -170,7 +170,7 @@ describe("Noteful API - Tags", function () {
         .set("Authorization", `Bearer ${token}`)
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("The `id` is not valid");
+          expect(res.body.message).to.equal("Field 'id' must be a Mongo ObjectId");
         });
     });
 
@@ -240,7 +240,7 @@ describe("Noteful API - Tags", function () {
           expect(res).to.have.status(400);
           expect(res).to.be.json;
           expect(res.body).to.be.a("object");
-          expect(res.body.message).to.equal("Missing `name` in request body");
+          expect(res.body.message).to.equal("Field 'name' is required");
         });
     });
 
@@ -255,13 +255,15 @@ describe("Noteful API - Tags", function () {
           expect(res).to.have.status(400);
           expect(res).to.be.json;
           expect(res.body).to.be.a("object");
-          expect(res.body.message).to.equal("Missing `name` in request body");
+          expect(res.body.message).to.equal("Field 'name' is required");
         });
     });
 
     it("should return an error when given a duplicate name", function () {
+      let data;
       return Tag.findOne({ userId: user.id })
-        .then(data => {
+        .then(_data => {
+          data = _data;
           const newItem = { name: data.name };
           return chai.request(app)
             .post("/api/tags")
@@ -272,7 +274,7 @@ describe("Noteful API - Tags", function () {
           expect(res).to.have.status(409);
           expect(res).to.be.json;
           expect(res.body).to.be.a("object");
-          expect(res.body.message).to.equal("Tag name already exists");
+          expect(res.body.message).to.equal(`Resource '${data.name}' must be unique`);
         });
     });
 
@@ -330,7 +332,7 @@ describe("Noteful API - Tags", function () {
         .send(updateItem)
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("The `id` is not valid");
+          expect(res.body.message).to.equal("Field 'id' must be a Mongo ObjectId");
         });
     });
 
@@ -361,7 +363,7 @@ describe("Noteful API - Tags", function () {
           expect(res).to.have.status(400);
           expect(res).to.be.json;
           expect(res.body).to.be.a("object");
-          expect(res.body.message).to.equal("Missing `name` in request body");
+          expect(res.body.message).to.equal("Field 'name' is required");
         });
     });
 
@@ -380,14 +382,16 @@ describe("Noteful API - Tags", function () {
           expect(res).to.have.status(400);
           expect(res).to.be.json;
           expect(res.body).to.be.a("object");
-          expect(res.body.message).to.equal("Missing `name` in request body");
+          expect(res.body.message).to.equal("Field 'name' is required");
         });
     });
 
     it("should return an error when given a duplicate name", function () {
+      let data;
       return Tag.find({ userId: user.id }).limit(2)
-        .then(results => {
-          const [item1, item2] = results;
+        .then(_data => {
+          data = _data;
+          const [item1, item2] = data;
           item1.name = item2.name;
           return chai.request(app)
             .put(`/api/tags/${item1.id}`)
@@ -398,7 +402,7 @@ describe("Noteful API - Tags", function () {
           expect(res).to.have.status(409);
           expect(res).to.be.json;
           expect(res.body).to.be.a("object");
-          expect(res.body.message).to.equal("Tag name already exists");
+          expect(res.body.message).to.equal(`Resource '${data[1].name}' must be unique`);
         });
     });
 
@@ -470,7 +474,7 @@ describe("Noteful API - Tags", function () {
         .set("Authorization", `Bearer ${token}`)
         .then(res => {
           expect(res).to.have.status(400);
-          expect(res.body.message).to.equal("The `id` is not valid");
+          expect(res.body.message).to.equal("Field 'id' must be a Mongo ObjectId");
         });
     });
 
