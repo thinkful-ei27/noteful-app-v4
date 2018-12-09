@@ -38,7 +38,7 @@ app.use("/api/notes", jwtAuth, notesRouter);
 app.use("/api/folders", jwtAuth, foldersRouter);
 app.use("/api/tags", jwtAuth, tagsRouter);
 app.use("/api/users", usersRouter);
-app.use("/api", authRouter);
+app.use("/api/auth", authRouter);
 
 // Custom 404 Not Found route handler
 app.use((req, res, next) => {
@@ -49,7 +49,6 @@ app.use((req, res, next) => {
 // Custom Error Handler
 app.use((err, req, res, next) => {
   // if (err instanceof createError.HttpError) {
-  console.log(err);
   if (err.status) {
     const errBody = Object.assign({}, err, { message: err.message });
     res.status(err.status).json(errBody);

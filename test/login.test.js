@@ -47,10 +47,10 @@ describe("Noteful API - Login", function () {
       .then(() => mongoose.disconnect());
   });
 
-  describe("Noteful /api/login", function () {
+  describe("Noteful /api/auth/login", function () {
     it("Should return a valid auth token", function () {
       return chai.request(app)
-        .post("/api/login")
+        .post("/api/auth/login")
         .send({ username, password })
         .then(res => {
           expect(res).to.have.status(200);
@@ -67,7 +67,7 @@ describe("Noteful API - Login", function () {
 
     it("Should reject requests without credentials", function () {
       return chai.request(app)
-        .post("/api/login")
+        .post("/api/auth/login")
         .send({})
         .then(res => {
           expect(res).to.have.status(400);
@@ -78,7 +78,7 @@ describe("Noteful API - Login", function () {
 
     it("Should reject requests with empty string username", function () {
       return chai.request(app)
-        .post("/api/login")
+        .post("/api/auth/login")
         .send({ username: "", password })
         .then(res => {
           expect(res).to.have.status(400);
@@ -89,7 +89,7 @@ describe("Noteful API - Login", function () {
 
     it("Should reject requests with empty string password", function () {
       return chai.request(app)
-        .post("/api/login")
+        .post("/api/auth/login")
         .send({ username, password: "" })
         .then(res => {
           expect(res).to.have.status(400);
@@ -100,7 +100,7 @@ describe("Noteful API - Login", function () {
 
     it("Should reject requests with incorrect username", function () {
       return chai.request(app)
-        .post("/api/login")
+        .post("/api/auth/login")
         .send({ username: "wrongUsername", password: "password" })
         .then(res => {
           expect(res).to.have.status(401);
@@ -110,11 +110,11 @@ describe("Noteful API - Login", function () {
     });
   });
 
-  describe("/api/refresh", function () {
+  describe("/api/auth/refresh", function () {
 
     it("should reject requests with no credentials", function () {
       return chai.request(app)
-        .post("/api/refresh")
+        .post("/api/auth/refresh")
         .then(res => {
           expect(res).to.have.status(401);
         });
@@ -123,7 +123,7 @@ describe("Noteful API - Login", function () {
     it("should reject requests with an invalid token", function () {
       token = jwt.sign({ username, password, fullname }, "Incorrect Secret");
       return chai.request(app)
-        .post("/api/refresh")
+        .post("/api/auth/refresh")
         .set("Authorization", `Bearer ${token}`)
         .then(res => {
           expect(res).to.have.status(401);
@@ -133,7 +133,7 @@ describe("Noteful API - Login", function () {
     it("should reject requests with an expired token", function () {
       token = jwt.sign({ username, password, fullname }, JWT_SECRET, { subject: username, expiresIn: Math.floor(Date.now() / 1000) - 10 });
       return chai.request(app)
-        .post("/api/refresh")
+        .post("/api/auth/refresh")
         .set("Authorization", `Bearer ${token}`)
         .then(res => {
           expect(res).to.have.status(401);
@@ -146,7 +146,7 @@ describe("Noteful API - Login", function () {
       const decoded = jwt.decode(token);
 
       return chai.request(app)
-        .post("/api/refresh")
+        .post("/api/auth/refresh")
         .set("Authorization", `Bearer ${token}`)
         .then(res => {
           expect(res).to.have.status(200);
