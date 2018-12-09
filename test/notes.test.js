@@ -7,7 +7,7 @@ const express = require('express');
 const sinon = require('sinon');
 const jwt = require('jsonwebtoken');
 
-const app = require('../server');
+const app = require('../app');
 const Tag = require('../models/tag');
 const Note = require('../models/note');
 const Folder = require('../models/folder');
@@ -41,7 +41,7 @@ describe('Noteful API - Notes', function () {
     ])
       .then(([users]) => {
         user = users[0];
-        user2 = users[1]
+        user2 = users[1];
         token = jwt.sign({ user }, JWT_SECRET, { subject: user.username });
       });
   });
@@ -317,7 +317,7 @@ describe('Noteful API - Notes', function () {
     folderId does not belong to you
     folderId cannot be unset
   */
-  describe.only('POST /api/notes', function () {
+  describe('POST /api/notes', function () {
 
     it('should create and return a new item when provided title and folderId', function () {
       let newItem, res;
@@ -549,7 +549,9 @@ describe('Noteful API - Notes', function () {
   describe('PUT /api/notes/:id', function () {
 
     it('should update the note when provided a valid title', function () {
-      const updateItem = { title: 'What about dogs?!' };
+      const updateItem = {
+        title: 'What about dogs?!'
+      };
       let data;
       return Note.findOne({ userId: user.id })
         .then(_data => {
@@ -567,10 +569,10 @@ describe('Noteful API - Notes', function () {
           expect(res.body.id).to.equal(data.id);
           expect(res.body.title).to.equal(updateItem.title);
           expect(res.body.content).to.equal(data.content);
-          expect(res.body.folderId).to.equal(data.folderId);
+          expect(res.body.folderId).to.equal(data.folderId.toString());
           expect(res.body.tags).to.deep.equal(data.tags);
           expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
-          // expect note to have been updated
+          // // expect note to have been updated
           expect(new Date(res.body.updatedAt)).to.greaterThan(data.updatedAt);
         });
     });
@@ -594,7 +596,7 @@ describe('Noteful API - Notes', function () {
           expect(res.body.id).to.equal(data.id);
           expect(res.body.title).to.equal(data.title);
           expect(res.body.content).to.equal(updateItem.content);
-          expect(res.body.folderId).to.equal(data.folderId);
+          expect(res.body.folderId).to.equal(data.folderId.toString());
           expect(res.body.tags).to.deep.equal(data.tags);
           expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
           // expect note to have been updated
@@ -626,7 +628,7 @@ describe('Noteful API - Notes', function () {
           expect(res.body.id).to.equal(data.id);
           expect(res.body.title).to.equal(data.title);
           expect(res.body.content).to.equal(data.content);
-          expect(res.body.folderId).to.equal(updateItem.folderId);
+          expect(res.body.folderId).to.equal(updateItem.folderId.toString());
           expect(res.body.tags).to.deep.equal(data.tags);
           expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
           // expect note to have been updated
@@ -658,14 +660,13 @@ describe('Noteful API - Notes', function () {
           expect(res.body.id).to.equal(data.id);
           expect(res.body.title).to.equal(data.title);
           expect(res.body.content).to.equal(data.content);
-          expect(res.body.folderId).to.equal(data.folderId);
+          expect(res.body.folderId).to.equal(data.folderId.toString());
           expect(res.body.tags[0].id).to.equal(updateItem.tags[0]);
           expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
           // expect note to have been updated
           expect(new Date(res.body.updatedAt)).to.greaterThan(data.updatedAt);
         });
     });
-
 
     it('should respond with status 400 and an error message when `id` is not valid', function () {
       const updateItem = {
@@ -732,34 +733,6 @@ describe('Noteful API - Notes', function () {
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
           expect(res.body.message).to.equal('The `folderId` is not valid');
-        });
-    });
-
-    it('should unset a note folderId when provided a empty string', function () {
-      const updateItem = { folderId: '' };
-      let data;
-
-      return Note.findOne({ userId: user.id, folderId: { $exists: true } })
-        .then((note) => {
-          data = note;
-          return chai.request(app)
-            .put(`/api/notes/${note.id}`)
-            .set('Authorization', `Bearer ${token}`)
-            .send(updateItem);
-        })
-        .then(function (res) {
-          expect(res).to.have.status(200);
-          expect(res).to.be.json;
-          expect(res.body).to.be.a('object');
-          expect(res.body).to.include.keys('id', 'title', 'content', 'createdAt', 'updatedAt');
-          expect(res.body.id).to.equal(data.id);
-          expect(res.body.title).to.equal(data.title);
-          expect(res.body.content).to.equal(data.content);
-          expect(res.body.folderId).to.not.exist;
-          expect(res.body.tags).to.deep.equal(data.tags);
-          expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
-          // expect note to have been updated
-          expect(new Date(res.body.updatedAt)).to.greaterThan(data.updatedAt);
         });
     });
 

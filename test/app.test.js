@@ -1,4 +1,4 @@
-'use strict';
+
 
 // Clear the console before each run
 // process.stdout.write("\x1Bc\n");

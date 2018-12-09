@@ -8,24 +8,29 @@ const Folder = require('../models/folder');
 const Tag = require('../models/tag');
 
 function validateFolderId(folderId, userId) {
-  // if (folderId === undefined) {
-  //   return Promise.resolve();
-  // }
 
-  if (!mongoose.Types.ObjectId.isValid(folderId)) {
+  if (folderId === '') {
     const err = new Error('The `folderId` is not valid');
     err.status = 400;
     return Promise.reject(err);
   }
 
-  return Folder.countDocuments({ _id: folderId, userId })
-    .then(count => {
-      if (count === 0) {
-        const err = new Error('The `folderId` is not valid');
-        err.status = 400;
-        return Promise.reject(err);
-      }
-    });
+  if (folderId) {
+    if (!mongoose.Types.ObjectId.isValid(folderId)) {
+      const err = new Error('The `folderId` is not valid');
+      err.status = 400;
+      return Promise.reject(err);
+    } else {
+      return Folder.countDocuments({ _id: folderId, userId })
+        .then(count => {
+          if (count === 0) {
+            const err = new Error('The `folderId` is not valid');
+            err.status = 400;
+            return Promise.reject(err);
+          }
+        });
+    }
+  }
 }
 
 function validateTagIds(tags, userId) {
@@ -128,8 +133,15 @@ router.post('/', (req, res, next) => {
   }
 
   const newNote = { title, content, folderId, tags, userId };
+
   if (newNote.folderId === '') {
     const err = new Error('Missing `folderId` in request body');
+    err.status = 400;
+    return next(err);
+  }
+
+  if (!mongoose.Types.ObjectId.isValid(newNote.folderId)) {
+    const err = new Error('The `folderId` is not valid');
     err.status = 400;
     return next(err);
   }
@@ -162,21 +174,28 @@ router.put('/:id', (req, res, next) => {
   });
 
   /***** Never trust users - validate input *****/
-  if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = new Error('The `id` is not valid');
-    err.status = 400;
-    return next(err);
-  }
-
   if (toUpdate.title === '') {
     const err = new Error('Missing `title` in request body');
     err.status = 400;
     return next(err);
   }
 
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    const err = new Error('The `id` is not valid');
+    err.status = 400;
+    return next(err);
+  }
+
   if (toUpdate.folderId === '') {
-    delete toUpdate.folderId;
-    toUpdate.$unset = { folderId: 1 };
+    const err = new Error('Missing `folderId` in request body');
+    err.status = 400;
+    return next(err);
+  }
+
+  if (toUpdate.folderId && !mongoose.Types.ObjectId.isValid(toUpdate.folderId)) {
+    const err = new Error('The `folderId` is not valid');
+    err.status = 400;
+    return next(err);
   }
 
   Promise.all([
