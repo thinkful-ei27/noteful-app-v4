@@ -41,22 +41,24 @@
 * [X] Separate `app.js` from `server.js`
 * [X] Use double quotes
 * [X] Remove `'use  strict';`
-* [_] Move logger to middlewares
-* [_] Ditch Passport use custom middleware
+* [X] Change `/api/login` to `/api/auth/login`
+* [X] Change `/api/refresh` to `/api/auth/refresh`
+* [X] Abstract key packages into custom middleware for easier composition
+    * [X] Move logger to middlewares
+    * [X] Move auth to middlewares
+  * [_] Create custom middleware replacement for Passport
 * [_] Move Registration Validation to middleware
 * [_] Add tests to repo to each solution branch
 * [_] Consistent username/password for seed users
-* [_] HATEOAS - Hypermedia
+
 * [X] Clean up the error handling objects (POJO or CustomError)
 * [_] Consistent informative error objects
 * [X] [Error Status](https://tools.ietf.org/html/rfc7231)
     * 400 Bad Request We use as generic bad request
     * 401 Authentication error UN/PW supplied but invalid
-    * 403 Forbidden - Authenticated but not authorized (use for admin resources)
     * 409 Conflict - Request violates a unique contraint on resource
-    * 422 Unprocessable Entity - RFC7231 dropped the syntax restriction on 400. 422 no longer needed
-
-
-
+    * _403 Forbidden - Authenticated but not authorized (use for admin resources)_
+    * ~~422 Unprocessable Entity - RFC7231 dropped the syntax restriction on 400. 422 no longer needed~~
+* [_] Helmet
 * [_] Fix slides and demos: `.remove` is deprecated in favor of `deleteOne()`, `deleteMany()`
 * [_] Fix slides and demos: `.update` is deprecated in favor of  `updateOne()`, `updateMany()`, and `replaceOne()`

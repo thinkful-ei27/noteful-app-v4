@@ -1,7 +1,7 @@
 const express = require("express");
-const morgan = require("morgan");
-const passport = require("passport");
 const createError = require("http-errors");
+
+const { cors, logger } = require("./middleware");
 
 const notesRouter = require("./routes/notes");
 const foldersRouter = require("./routes/folders");
@@ -9,36 +9,31 @@ const tagsRouter = require("./routes/tags");
 const usersRouter = require("./routes/users");
 const authRouter = require("./routes/auth");
 
-const localStrategy = require("./passport/local");
-const jwtStrategy = require("./passport/jwt");
-
 // Create an Express application
 const app = express();
 
-// Log all requests. Skip logging during
-app.use(morgan(process.env.NODE_ENV === "development" ? "dev" : "common", {
-  skip: () => process.env.NODE_ENV === "test"
-}));
+// Log all requests
+app.use(logger);
 
 // Create a static webserver
 app.use(express.static("public"));
 
+// Log all requests
+app.use(cors);
+
 // Parse request body
 app.use(express.json());
 
-// Utilize the given `strategy`
-passport.use(localStrategy);
-passport.use(jwtStrategy);
-
-// Protect endpoints using JWT Strategy
-const jwtAuth = passport.authenticate("jwt", { session: false, failWithError: true });
-
-// Mount routers
-app.use("/api/notes", jwtAuth, notesRouter);
-app.use("/api/folders", jwtAuth, foldersRouter);
-app.use("/api/tags", jwtAuth, tagsRouter);
+// Mount user registration
 app.use("/api/users", usersRouter);
+
+// Mount login and refresh routes
 app.use("/api/auth", authRouter);
+
+// Mount user content resources
+app.use("/api/notes", notesRouter);
+app.use("/api/folders", foldersRouter);
+app.use("/api/tags", tagsRouter);
 
 // Custom 404 Not Found route handler
 app.use((req, res, next) => {

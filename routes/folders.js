@@ -5,7 +5,11 @@ const createError = require("http-errors");
 const Folder = require("../models/folder");
 const Note = require("../models/note");
 
+const { jwtAuth } = require("../middleware");
+
 const router = express.Router();
+
+router.use(jwtAuth);
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get("/", (req, res, next) => {

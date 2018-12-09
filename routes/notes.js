@@ -54,7 +54,11 @@ function validateTagIds(tags, userId) {
     });
 }
 
+const { jwtAuth } = require("../middleware");
+
 const router = express.Router();
+
+router.use(jwtAuth);
 
 /* ========== GET/READ ALL ITEMS ========== */
 router.get("/", (req, res, next) => {
