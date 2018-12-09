@@ -11,6 +11,11 @@ const { TEST_MONGODB_URI, JWT_SECRET } = require('../config');
 const User = require('../models/user');
 
 const expect = chai.expect;
+
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true );
+
 chai.use(chaiHttp);
 
 describe('Noteful API - Login', function () {
@@ -22,7 +27,7 @@ describe('Noteful API - Login', function () {
   const password = 'examplePass';
 
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true });
+    return mongoose.connect(TEST_MONGODB_URI);
   });
 
   beforeEach(function () {

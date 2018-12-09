@@ -1,6 +1,7 @@
 'use strict';
 
 const express = require('express');
+const createError = require('http-errors');
 
 const User = require('../models/user');
 
@@ -14,8 +15,7 @@ router.post('/', (req, res, next) => {
   const missingField = requiredFields.find(field => !(field in req.body));
 
   if (missingField) {
-    const err = new Error(`Missing '${missingField}' in request body`);
-    err.status = 422;
+    const err = createError(400, `Missing '${missingField}' in request body`);
     return next(err);
   }
 
@@ -25,8 +25,7 @@ router.post('/', (req, res, next) => {
   );
 
   if (nonStringField) {
-    const err = new Error(`Field: '${nonStringField}' must be type String`);
-    err.status = 422;
+    const err = createError(400, `Field: '${nonStringField}' must be type String`);
     return next(err);
   }
 
@@ -43,8 +42,7 @@ router.post('/', (req, res, next) => {
   );
 
   if (nonTrimmedField) {
-    const err = new Error(`Field: '${nonTrimmedField}' cannot start or end with whitespace`);
-    err.status = 422;
+    const err = createError(400, `Field: '${nonTrimmedField}' cannot start or end with whitespace`);
     return next(err);
   }
 
@@ -61,8 +59,7 @@ router.post('/', (req, res, next) => {
   );
   if (tooSmallField) {
     const min = sizedFields[tooSmallField].min;
-    const err = new Error(`Field: '${tooSmallField}' must be at least ${min} characters long`);
-    err.status = 422;
+    const err = createError(400, `Field: '${tooSmallField}' must be at least ${min} characters long`);
     return next(err);
   }
 
@@ -73,8 +70,7 @@ router.post('/', (req, res, next) => {
 
   if (tooLargeField) {
     const max = sizedFields[tooLargeField].max;
-    const err = new Error(`Field: '${tooLargeField}' must be at most ${max} characters long`);
-    err.status = 422;
+    const err = createError(400, `Field: '${tooLargeField}' must be at most ${max} characters long`);
     return next(err);
   }
 
@@ -96,8 +92,7 @@ router.post('/', (req, res, next) => {
     })
     .catch(err => {
       if (err.code === 11000) {
-        err = new Error('The username already exists');
-        err.status = 400;
+        err = createError(409, 'The username already exists');
       }
       next(err);
     });

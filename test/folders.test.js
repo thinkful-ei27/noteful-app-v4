@@ -15,6 +15,10 @@ const Note = require('../models/note');
 const { folders, notes, users } = require('../db/data');
 const { TEST_MONGODB_URI, JWT_SECRET } = require('../config');
 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true );
+
 chai.use(chaiHttp);
 const expect = chai.expect;
 const sandbox = sinon.createSandbox();
@@ -235,7 +239,7 @@ describe('Noteful API - Folders', function () {
             .send(newItem);
         })
         .then(res => {
-          expect(res).to.have.status(400);
+          expect(res).to.have.status(409);
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
           expect(res.body.message).to.equal('Folder name already exists');
@@ -360,7 +364,7 @@ describe('Noteful API - Folders', function () {
             .send(item1);
         })
         .then(res => {
-          expect(res).to.have.status(400);
+          expect(res).to.have.status(409);
           expect(res).to.be.json;
           expect(res.body).to.be.a('object');
           expect(res.body.message).to.equal('Folder name already exists');

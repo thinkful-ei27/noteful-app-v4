@@ -16,7 +16,12 @@ const { TEST_MONGODB_URI, JWT_SECRET } = require('../config');
 
 const { folders, notes, tags, users } = require('../db/data');
 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true );
+
 chai.use(chaiHttp);
+
 const expect = chai.expect;
 const sandbox = sinon.createSandbox();
 

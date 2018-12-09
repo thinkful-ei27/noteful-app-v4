@@ -1,7 +1,10 @@
 const app = require('./app');
 const mongoose = require('mongoose');
-
 const { PORT, MONGODB_URI } = require('./config');
+
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true );
 
 // Listen on provided port
 app.listen(PORT, function () {
@@ -19,8 +22,3 @@ mongoose.connect(MONGODB_URI)
   .catch(err => {
     console.error(err);
   });
-
-mongoose.set({
-  useNewUrlParser: true,
-  useCreateIndex: true
-});

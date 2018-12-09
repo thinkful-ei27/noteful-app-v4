@@ -11,8 +11,12 @@ const User = require('../models/user');
 
 const { folders, notes, tags, users } = require('../db/data');
 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true );
+
 console.log(`Connecting to mongodb at ${MONGODB_URI}`);
-mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
+mongoose.connect(MONGODB_URI)
   .then(() => {
     console.info('Delete Data');
     return Promise.all([

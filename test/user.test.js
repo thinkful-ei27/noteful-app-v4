@@ -11,6 +11,10 @@ const User = require('../models/user');
 
 const expect = chai.expect;
 
+mongoose.set('useNewUrlParser', true);
+mongoose.set('useFindAndModify', false);
+mongoose.set('useCreateIndex', true );
+
 chai.use(chaiHttp);
 
 describe('Noteful API - Users', function () {
@@ -72,7 +76,7 @@ describe('Noteful API - Users', function () {
         .send({ password, fullname })
 
         .then(res => {
-          expect(res).to.have.status(422);
+          expect(res).to.have.status(400);
           expect(res.body.message).to.equal('Missing \'username\' in request body');
         });
     });
@@ -84,7 +88,7 @@ describe('Noteful API - Users', function () {
         .send({ username, fullname })
 
         .then(res => {
-          expect(res).to.have.status(422);
+          expect(res).to.have.status(400);
           expect(res.body.message).to.equal('Missing \'password\' in request body');
         });
     });
@@ -96,7 +100,7 @@ describe('Noteful API - Users', function () {
         .send({ username: 1234, password, fullname })
 
         .then(res => {
-          expect(res).to.have.status(422);
+          expect(res).to.have.status(400);
           expect(res.body.message).to.equal('Field: \'username\' must be type String');
         });
     });
@@ -108,7 +112,7 @@ describe('Noteful API - Users', function () {
         .send({ username, password: 1234, fullname })
 
         .then(res => {
-          expect(res).to.have.status(422);
+          expect(res).to.have.status(400);
           expect(res.body.message).to.equal('Field: \'password\' must be type String');
         });
     });
@@ -120,7 +124,7 @@ describe('Noteful API - Users', function () {
         .send({ username: ` ${username} `, password, fullname })
 
         .then(res => {
-          expect(res).to.have.status(422);
+          expect(res).to.have.status(400);
           expect(res.body.message).to.equal('Field: \'username\' cannot start or end with whitespace');
         });
     });
@@ -132,7 +136,7 @@ describe('Noteful API - Users', function () {
         .send({ username, password: ` ${password}`, fullname })
 
         .then(res => {
-          expect(res).to.have.status(422);
+          expect(res).to.have.status(400);
           expect(res.body.message).to.equal('Field: \'password\' cannot start or end with whitespace');
         });
     });
@@ -144,7 +148,7 @@ describe('Noteful API - Users', function () {
         .send({ username: '', password, fullname })
 
         .then(res => {
-          expect(res).to.have.status(422);
+          expect(res).to.have.status(400);
           expect(res.body.message).to.equal('Field: \'username\' must be at least 1 characters long');
         });
     });
@@ -156,7 +160,7 @@ describe('Noteful API - Users', function () {
         .send({ username, password: 'asdfghj', fullname })
 
         .then(res => {
-          expect(res).to.have.status(422);
+          expect(res).to.have.status(400);
           expect(res.body.message).to.equal('Field: \'password\' must be at least 8 characters long');
         });
     });
@@ -168,7 +172,7 @@ describe('Noteful API - Users', function () {
         .send({ username, password: new Array(73).fill('a').join(''), fullname })
 
         .then(res => {
-          expect(res).to.have.status(422);
+          expect(res).to.have.status(400);
           expect(res.body.message).to.equal('Field: \'password\' must be at most 72 characters long');
         });
     });
@@ -187,7 +191,7 @@ describe('Noteful API - Users', function () {
             .send({ username, password, fullname });
         })
         .then(res => {
-          expect(res).to.have.status(400);
+          expect(res).to.have.status(409);
           expect(res.body.message).to.equal('The username already exists');
         });
     });

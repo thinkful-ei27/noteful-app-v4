@@ -2,6 +2,7 @@
 
 const express = require('express');
 const mongoose = require('mongoose');
+const createError = require('http-errors');
 
 const Tag = require('../models/tag');
 const Note = require('../models/note');
@@ -29,8 +30,7 @@ router.get('/:id', (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = new Error('The `id` is not valid');
-    err.status = 400;
+    const err = createError(400, 'The `id` is not valid');
     return next(err);
   }
 
@@ -56,8 +56,7 @@ router.post('/', (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!name) {
-    const err = new Error('Missing `name` in request body');
-    err.status = 400;
+    const err = createError(400, 'Missing `name` in request body');
     return next(err);
   }
 
@@ -67,8 +66,7 @@ router.post('/', (req, res, next) => {
     })
     .catch(err => {
       if (err.code === 11000) {
-        err = new Error('Tag name already exists');
-        err.status = 400;
+        err = createError(409, 'Tag name already exists');
       }
       next(err);
     });
@@ -82,14 +80,12 @@ router.put('/:id', (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = new Error('The `id` is not valid');
-    err.status = 400;
+    const err = createError(400, 'The `id` is not valid');
     return next(err);
   }
 
   if (!name) {
-    const err = new Error('Missing `name` in request body');
-    err.status = 400;
+    const err = createError(400, 'Missing `name` in request body');
     return next(err);
   }
 
@@ -105,8 +101,7 @@ router.put('/:id', (req, res, next) => {
     })
     .catch(err => {
       if (err.code === 11000) {
-        err = new Error('Tag name already exists');
-        err.status = 400;
+        err = createError(409, 'Tag name already exists');
       }
       next(err);
     });
@@ -119,8 +114,7 @@ router.delete('/:id', (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = new Error('The `id` is not valid');
-    err.status = 400;
+    const err = createError(400, 'The `id` is not valid');
     return next(err);
   }
 
