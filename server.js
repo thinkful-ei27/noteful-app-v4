@@ -1,15 +1,15 @@
-const app = require('./app');
-const mongoose = require('mongoose');
-const { PORT, MONGODB_URI } = require('./config');
+const app = require("./app");
+const mongoose = require("mongoose");
+const { PORT, MONGODB_URI } = require("./config");
 
-mongoose.set('useNewUrlParser', true);
-mongoose.set('useFindAndModify', false);
-mongoose.set('useCreateIndex', true );
+mongoose.set("useNewUrlParser", true);
+mongoose.set("useFindAndModify", false);
+mongoose.set("useCreateIndex", true);
 
 // Listen on provided port
 app.listen(PORT, function () {
   console.info(`Server listening on ${this.address().port}`);
-}).on('error', err => {
+}).on("error", err => {
   console.error(err);
 });
 

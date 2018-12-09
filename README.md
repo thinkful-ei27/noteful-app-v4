@@ -39,6 +39,7 @@
 * [X] FolderId required
 * [X] Use findOneAndDelete instead of findOneAndModify
 * [X] Separate `app.js` from `server.js`
+* [_] Use double quotes
 * [_] Remove `'use  strict';`
 * [_] Move logger to middlewares
 * [_] Ditch Passport use custom middleware

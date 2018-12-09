@@ -1,20 +1,18 @@
-'use strict';
+const express = require("express");
+const mongoose = require("mongoose");
+const createError = require("http-errors");
 
-const express = require('express');
-const mongoose = require('mongoose');
-const createError = require('http-errors');
-
-const Tag = require('../models/tag');
-const Note = require('../models/note');
+const Tag = require("../models/tag");
+const Note = require("../models/note");
 
 const router = express.Router();
 
 /* ========== GET/READ ALL ITEMS ========== */
-router.get('/', (req, res, next) => {
+router.get("/", (req, res, next) => {
   const userId = req.user.id;
 
   Tag.find({ userId })
-    .sort('name')
+    .sort("name")
     .then(results => {
       res.json(results);
     })
@@ -24,13 +22,13 @@ router.get('/', (req, res, next) => {
 });
 
 /* ========== GET/READ A SINGLE ITEM ========== */
-router.get('/:id', (req, res, next) => {
+router.get("/:id", (req, res, next) => {
   const { id } = req.params;
   const userId = req.user.id;
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = createError(400, 'The `id` is not valid');
+    const err = createError(400, "The `id` is not valid");
     return next(err);
   }
 
@@ -48,7 +46,7 @@ router.get('/:id', (req, res, next) => {
 });
 
 /* ========== POST/CREATE AN ITEM ========== */
-router.post('/', (req, res, next) => {
+router.post("/", (req, res, next) => {
   const { name } = req.body;
   const userId = req.user.id;
 
@@ -56,7 +54,7 @@ router.post('/', (req, res, next) => {
 
   /***** Never trust users - validate input *****/
   if (!name) {
-    const err = createError(400, 'Missing `name` in request body');
+    const err = createError(400, "Missing `name` in request body");
     return next(err);
   }
 
@@ -66,26 +64,26 @@ router.post('/', (req, res, next) => {
     })
     .catch(err => {
       if (err.code === 11000) {
-        err = createError(409, 'Tag name already exists');
+        err = createError(409, "Tag name already exists");
       }
       next(err);
     });
 });
 
 /* ========== PUT/UPDATE A SINGLE ITEM ========== */
-router.put('/:id', (req, res, next) => {
+router.put("/:id", (req, res, next) => {
   const { id } = req.params;
   const { name } = req.body;
   const userId = req.user.id;
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = createError(400, 'The `id` is not valid');
+    const err = createError(400, "The `id` is not valid");
     return next(err);
   }
 
   if (!name) {
-    const err = createError(400, 'Missing `name` in request body');
+    const err = createError(400, "Missing `name` in request body");
     return next(err);
   }
 
@@ -101,20 +99,20 @@ router.put('/:id', (req, res, next) => {
     })
     .catch(err => {
       if (err.code === 11000) {
-        err = createError(409, 'Tag name already exists');
+        err = createError(409, "Tag name already exists");
       }
       next(err);
     });
 });
 
 /* ========== DELETE/REMOVE A SINGLE ITEM ========== */
-router.delete('/:id', (req, res, next) => {
+router.delete("/:id", (req, res, next) => {
   const { id } = req.params;
   const userId = req.user.id;
 
   /***** Never trust users - validate input *****/
   if (!mongoose.Types.ObjectId.isValid(id)) {
-    const err = createError(400, 'The `id` is not valid');
+    const err = createError(400, "The `id` is not valid");
     return next(err);
   }
 

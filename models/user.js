@@ -1,17 +1,15 @@
-'use strict';
-
-const bcrypt = require('bcryptjs');
-const mongoose = require('mongoose');
+const bcrypt = require("bcryptjs");
+const mongoose = require("mongoose");
 
 // ===== Define UserSchema & UserModel =====
 const schema = new mongoose.Schema({
-  fullname: { type: String, default: '' },
+  fullname: { type: String, default: "" },
   username: { type: String, required: true, unique: true },
   password: { type: String, required: true }
 });
 
 // Transform output during `res.json(data)`, `console.log(data)` etc.
-schema.set('toJSON', {
+schema.set("toJSON", {
   virtuals: true,
   transform: (doc, result) => {
     delete result._id;
@@ -30,4 +28,4 @@ schema.statics.hashPassword = function (pwd) {
   return bcrypt.hash(pwd, 10);
 };
 
-module.exports = mongoose.model('User', schema);
+module.exports = mongoose.model("User", schema);
