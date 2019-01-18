@@ -25,8 +25,7 @@ describe('Noteful API - Tags', function () {
   let token;
   before(function () {
     return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true })
-      .then(() => mongoose.connection.db.dropDatabase())
-      .then(() => Tag.createIndexes());
+      .then(() => mongoose.connection.db.dropDatabase());
   });
 
 

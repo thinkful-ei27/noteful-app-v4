@@ -26,11 +26,7 @@ describe('Noteful API - Notes', function () {
   let token;
   before(function () {
     return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true })
-      .then(() => mongoose.connection.db.dropDatabase())
-      .then(() => Promise.all([
-        Tag.createIndexes(),
-        Folder.createIndexes()
-      ]));
+      .then(() => mongoose.connection.db.dropDatabase());
   });
 
   beforeEach(function () {
