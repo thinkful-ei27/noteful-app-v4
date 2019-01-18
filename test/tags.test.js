@@ -24,47 +24,19 @@ describe('Noteful API - Tags', function () {
   let user;
   let token;
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true })
+      .then(() => mongoose.connection.db.dropDatabase())
       .then(() => Tag.createIndexes());
   });
 
-  beforeEach(function () {
-    return Promise.all([
-      User.insertMany(users),
-      Tag.insertMany(tags),
-      Note.insertMany(notes)
-    ])
-      .then(([users]) => {
-        user = users[0];
-        token = jwt.sign({ user }, JWT_SECRET, { subject: user.username });
-      });
-  });
-
-  afterEach(function () {
-    sandbox.restore();
-    return Promise.all([
-      Note.deleteMany(),
-      Tag.deleteMany(),
-      User.deleteMany()
-    ]);
-  });
-
-  after(function () {
-    return mongoose.connection.db.dropDatabase()
-      .then(() => mongoose.disconnect());
-  });
-
-  /*   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI)
-      .then(() => mongoose.connection.db.dropDatabase());
-  });
 
   beforeEach(function () {
     return Promise.all([
       User.insertMany(users),
       Tag.insertMany(tags),
-      Tag.createIndexes(),
-      Note.insertMany(notes)
+      Note.insertMany(notes),
+      User.createIndexes(),
+      Tag.createIndexes()
     ])
       .then(([users]) => {
         user = users[0];
@@ -79,7 +51,7 @@ describe('Noteful API - Tags', function () {
 
   after(function () {
     return mongoose.disconnect();
-  }); */
+  });
 
   describe('GET /api/tags', function () {
 

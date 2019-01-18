@@ -7,12 +7,12 @@ const Note = require('../models/note');
 const Folder = require('../models/folder');
 const Tag = require('../models/tag');
 
-function validateFolderId(folderId, userId) {
-  if (folderId === undefined) {
+const validateFolderId = (folderId, userId) => {
+  if (folderId === undefined || folderId === '') {
     return Promise.resolve();
   }
 
-  if (!mongoose.Types.ObjectId.isValid(folderId)) {
+  if (folderId && !mongoose.Types.ObjectId.isValid(folderId)) {
     const err = new Error('The `folderId` is not valid');
     err.status = 400;
     return Promise.reject(err);
@@ -26,9 +26,9 @@ function validateFolderId(folderId, userId) {
         return Promise.reject(err);
       }
     });
-}
+};
 
-function validateTagIds(tags, userId) {
+const validateTagIds = (tags, userId) => {
   if (tags === undefined) {
     return Promise.resolve();
   }
@@ -46,15 +46,22 @@ function validateTagIds(tags, userId) {
     return Promise.reject(err);
   }
 
-  return Tag.find({ $and: [{ _id: { $in: tags }, userId }] })
-    .then(results => {
-      if (tags.length !== results.length) {
+  return Tag.countDocuments({
+    $and: [
+      {
+        _id: { $in: tags },
+        userId
+      }
+    ]
+  })
+    .then(count => {
+      if (tags.length > count) {
         const err = new Error('The `tags` array contains an invalid `id`');
         err.status = 400;
         return Promise.reject(err);
       }
     });
-}
+};
 
 const router = express.Router();
 
@@ -209,7 +216,7 @@ router.delete('/:id', (req, res, next) => {
     return next(err);
   }
 
-  Note.findOneAndRemove({ _id: id, userId })
+  Note.findOneAndDelete({ _id: id, userId })
     .then(() => {
       res.sendStatus(204);
     })

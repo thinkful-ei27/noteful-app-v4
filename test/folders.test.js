@@ -24,7 +24,8 @@ describe('Noteful API - Folders', function () {
   let user;
   let token;
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true })
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true })
+      .then(() => mongoose.connection.db.dropDatabase())
       .then(() => Folder.createIndexes());
   });
 
@@ -32,7 +33,9 @@ describe('Noteful API - Folders', function () {
     return Promise.all([
       User.insertMany(users),
       Folder.insertMany(folders),
-      Note.insertMany(notes)
+      Note.insertMany(notes),
+      User.createIndexes(),
+      Folder.createIndexes()
     ])
       .then(([users]) => {
         user = users[0];
@@ -42,16 +45,11 @@ describe('Noteful API - Folders', function () {
 
   afterEach(function () {
     sandbox.restore();
-    return Promise.all([
-      Note.deleteMany(),
-      Folder.deleteMany(),
-      User.deleteMany()
-    ]);
+    return mongoose.connection.db.dropDatabase();
   });
 
   after(function () {
-    return mongoose.connection.db.dropDatabase()
-      .then(() => mongoose.disconnect());
+    return mongoose.disconnect();
   });
 
   describe('GET /api/folders', function () {
