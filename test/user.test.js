@@ -191,6 +191,20 @@ describe('Noteful API - Users', function () {
         });
     });
 
+    it('Should reject users with duplicate username', function () {
+      return User.create({ username, password, fullname })
+        .then(() => {
+          return chai
+            .request(app)
+            .post('/api/users')
+            .send({ username: 'exampleuser', password, fullname });
+        })
+        .then(res => {
+          expect(res).to.have.status(400);
+          expect(res.body.message).to.equal('The username already exists');
+        });
+    });
+
     it('Should trim fullname', function () {
       return chai
         .request(app)

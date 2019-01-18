@@ -568,7 +568,7 @@ describe('Noteful API - Notes', function () {
         });
     });
 
-    it.only('should update the note when provided a valid tag', function () {
+    it('should update the note when provided a valid tag', function () {
       const updateItem = { tags: [] };
       let data;
 
