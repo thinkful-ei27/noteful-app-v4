@@ -484,7 +484,10 @@ describe('Noteful API - Notes', function () {
     it('should update the note when provided a valid title', function () {
       const updateItem = { title: 'What about dogs?!' };
       let data;
-      return Note.findOne({ userId: user.id })
+      return Note.findOne({
+        userId: user.id,
+        folderId: { $exists: true }
+      })
         .then(_data => {
           data = _data;
           return chai.request(app)
@@ -500,12 +503,6 @@ describe('Noteful API - Notes', function () {
           expect(res.body.id).to.equal(data.id);
           expect(res.body.title).to.equal(updateItem.title);
           expect(res.body.content).to.equal(data.content);
-
-          console.log(typeof res.body.folderId);
-          console.log(typeof data.folderId);
-
-          expect(res.body.folderId).to.deep.equal(data.folderId.toString());
-
           expect(res.body.tags).to.deep.equal(data.tags);
           expect(new Date(res.body.createdAt)).to.eql(data.createdAt);
           // expect note to have been updated
@@ -516,7 +513,10 @@ describe('Noteful API - Notes', function () {
     it('should update the note when provided valid content', function () {
       const updateItem = { content: 'Lorem ipsum dolor sit amet...' };
       let data;
-      return Note.findOne({ userId: user.id })
+      return Note.findOne({
+        userId: user.id,
+        folderId: { $exists: true }
+      })
         .then(_data => {
           data = _data;
           return chai.request(app)
@@ -572,13 +572,16 @@ describe('Noteful API - Notes', function () {
         });
     });
 
-    it('should update the note when provided a valid tag', function () {
+    it.only('should update the note when provided a valid tag', function () {
       const updateItem = { tags: [] };
       let data;
 
       return Promise.all([
         Tag.findOne({ userId: user.id }),
-        Note.findOne({ userId: user.id })
+        Note.findOne({
+          userId: user.id,
+          folderId: { $exists: true }
+        })
       ])
         .then(([tag, note]) => {
           updateItem.tags.push(tag.id);
