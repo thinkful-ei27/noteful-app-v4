@@ -19,26 +19,21 @@ const sandbox = sinon.createSandbox();
 describe('Noteful API - Tags', function () {
 
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
-      .then(() => Promise.all([
-        Note.deleteMany(),
-        Tag.deleteMany()
-      ]));
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true })
+      .then(() => mongoose.connection.db.dropDatabase());
   });
 
   beforeEach(function () {
     return Promise.all([
       Tag.insertMany(tags),
-      Note.insertMany(notes)
+      Note.insertMany(notes),
+      Tag.createIndexes()
     ]);
   });
 
   afterEach(function () {
     sandbox.restore();
-    return Promise.all([
-      Note.deleteMany(),
-      Tag.deleteMany()
-    ]);
+    return mongoose.connection.db.dropDatabase();
   });
 
   after(function () {
