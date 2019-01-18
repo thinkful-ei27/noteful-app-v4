@@ -73,9 +73,9 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
     //   });
 
     /**
-     * Delete a note by id using Note.findByIdAndRemove
+     * Delete a note by id using Note.findByIdAndDelete
      */
-    // return Note.findByIdAndRemove('000000000000000000000004')
+    // return Note.findByIdAndDelete('000000000000000000000004')
     //   .then(result => {
     //     console.log('deleted', result);
     //   });

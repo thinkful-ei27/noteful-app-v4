@@ -19,32 +19,27 @@ const sandbox = sinon.createSandbox();
 describe('Noteful API - Folders', function () {
 
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
-      .then(() => Promise.all([
-        Note.deleteMany(),
-        Folder.deleteMany()
-      ]));
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true })
+      .then(() => mongoose.connection.db.dropDatabase());
   });
 
   beforeEach(function () {
     return Promise.all([
       Folder.insertMany(folders),
-      Note.insertMany(notes)
+      Note.insertMany(notes),
+      Folder.createIndexes()
     ]);
   });
 
   afterEach(function () {
     sandbox.restore();
-    return Promise.all([
-      Note.deleteMany(), 
-      Folder.deleteMany()
-    ]);
+    return mongoose.connection.db.dropDatabase();
   });
 
   after(function () {
     return mongoose.disconnect();
   });
-  
+
   describe('GET /api/folders', function () {
 
     it('should return a list sorted with the correct number of folders', function () {

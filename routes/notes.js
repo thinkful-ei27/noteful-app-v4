@@ -172,7 +172,7 @@ router.delete('/:id', (req, res, next) => {
     return next(err);
   }
 
-  Note.findByIdAndRemove(id)
+  Note.findByIdAndDelete(id)
     .then(() => {
       res.sendStatus(204);
     })
