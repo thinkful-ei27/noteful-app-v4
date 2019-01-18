@@ -7,20 +7,14 @@ const { MONGODB_URI } = require('../config');
 const Note = require('../models/note');
 const Folder = require('../models/folder');
 const Tag = require('../models/tag');
-const User = require('../models/user');
 
-const { folders, notes, tags, users } = require('../db/data');
+const { folders, notes, tags } = require('../db/data');
 
 console.log(`Connecting to mongodb at ${MONGODB_URI}`);
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
   .then(() => {
     console.info('Delete Data');
-    return Promise.all([
-      Note.deleteMany(),
-      Folder.deleteMany(),
-      Tag.deleteMany(),
-      User.deleteMany()
-    ]);
+    return mongoose.connection.db.dropDatabase();
   })
   .then(() => {
     console.info('Seeding Database');
@@ -28,7 +22,8 @@ mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
       Note.insertMany(notes),
       Folder.insertMany(folders),
       Tag.insertMany(tags),
-      User.insertMany(users)
+      Folder.createIndexes(),
+      Tag.createIndexes()
     ]);
   })
   .then(results => {

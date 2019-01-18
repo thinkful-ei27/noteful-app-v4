@@ -11,9 +11,8 @@ const app = require('../server');
 const Tag = require('../models/tag');
 const User = require('../models/user');
 const Note = require('../models/note');
-const { TEST_MONGODB_URI } = require('../config');
-
 const { notes, tags, users } = require('../db/data');
+const { TEST_MONGODB_URI } = require('../config');
 
 chai.use(chaiHttp);
 const expect = chai.expect;
@@ -21,32 +20,25 @@ const sandbox = sinon.createSandbox();
 
 describe('Noteful API - Tags', function () {
 
-  let user;
   let token;
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
-      .then(() => Promise.all([
-        Note.deleteMany(),
-        Tag.deleteMany(),
-        User.deleteMany()
-      ]));
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true })
+      .then(() => mongoose.connection.db.dropDatabase());
   });
 
   beforeEach(function () {
     return Promise.all([
       Tag.insertMany(tags),
       Note.insertMany(notes),
-      User.insertMany(users)
+      User.insertMany(users),
+      User.createIndexes(),
+      Tag.createIndexes()
     ]);
   });
 
   afterEach(function () {
     sandbox.restore();
-    return Promise.all([
-      Note.deleteMany(),
-      Tag.deleteMany(),
-      User.deleteMany()
-    ]);
+    return mongoose.connection.db.dropDatabase();
   });
 
   after(function () {

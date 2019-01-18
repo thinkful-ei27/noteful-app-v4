@@ -19,8 +19,8 @@ describe('Noteful API - Users', function () {
   const fullname = 'Example User';
 
   before(function () {
-    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
-      .then(() => User.deleteMany());
+    return mongoose.connect(TEST_MONGODB_URI, { useNewUrlParser: true, useCreateIndex: true })
+      .then(() => mongoose.connection.db.dropDatabase());
   });
 
   beforeEach(function () {
@@ -28,7 +28,7 @@ describe('Noteful API - Users', function () {
   });
 
   afterEach(function () {
-    return User.deleteMany();
+    return mongoose.connection.db.dropDatabase();
   });
 
   after(function () {

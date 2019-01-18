@@ -95,7 +95,7 @@ router.put('/:id', (req, res, next) => {
 
   const updateTag = { name, userId };
 
-  Tag.findByIdAndUpdate(id, updateTag, { new: true })
+  Tag.findOneAndUpdate({ _id: id, userId }, updateTag, { new: true })
     .then(result => {
       if (result) {
         res.json(result);
@@ -124,7 +124,7 @@ router.delete('/:id', (req, res, next) => {
     return next(err);
   }
 
-  const tagRemovePromise = Tag.findOneAndRemove({ _id: id, userId });
+  const tagRemovePromise = Tag.findOneAndDelete({ _id: id, userId });
 
   const noteUpdatePromise = Note.updateMany(
     { tags: id, userId },
