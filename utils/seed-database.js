@@ -14,18 +14,16 @@ console.log(`Connecting to mongodb at ${MONGODB_URI}`);
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useCreateIndex : true })
   .then(() => {
     console.info('Delete Data');
-    return Promise.all([
-      Note.deleteMany(),
-      Folder.deleteMany(),
-      Tag.deleteMany(),
-    ]);
+    return mongoose.connection.db.dropDatabase();
   })
   .then(() => {
     console.info('Seeding Database');
     return Promise.all([
       Note.insertMany(notes),
       Folder.insertMany(folders),
-      Tag.insertMany(tags)
+      Tag.insertMany(tags),
+      Folder.createIndexes(),
+      Tag.createIndexes()
     ]);
   })
   .then(results => {

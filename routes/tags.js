@@ -119,7 +119,7 @@ router.delete('/:id', (req, res, next) => {
     return next(err);
   }
 
-  const tagRemovePromise = Tag.findByIdAndRemove(id);
+  const tagRemovePromise = Tag.findByIdAndDelete(id);
 
   const noteUpdatePromise = Note.updateMany(
     { tags: id },

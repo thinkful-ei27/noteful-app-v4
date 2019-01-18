@@ -14,7 +14,8 @@ const localStrategy = new LocalStrategy((username, password, done) => {
         return Promise.reject({
           reason: 'LoginError',
           message: 'Incorrect username',
-          location: 'username'
+          location: 'username',
+          status: 401,
         });
       }
       return user.validatePassword(password);
@@ -24,7 +25,8 @@ const localStrategy = new LocalStrategy((username, password, done) => {
         return Promise.reject({
           reason: 'LoginError',
           message: 'Incorrect password',
-          location: 'password'
+          location: 'password',
+          status: 401,
         });
       }
       return done(null, user);
