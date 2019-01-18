@@ -58,7 +58,7 @@ describe('Noteful API - Login', function () {
 
           expect(payload.user).to.not.have.property('password');
           expect(payload.user.id).to.equal(_id);
-          expect(payload.user.username).to.deep.equal(username);
+          expect(payload.user.username).to.deep.equal(username.toLowerCase());
         });
     });
 

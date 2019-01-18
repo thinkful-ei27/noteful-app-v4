@@ -37,7 +37,7 @@ describe('Noteful API - Users', function () {
 
   describe('POST /api/users', function () {
 
-    it('Should create a new user', function () {
+    it('Should create a new user with lowercase username', function () {
       let res;
       return chai
         .request(app)
@@ -49,7 +49,7 @@ describe('Noteful API - Users', function () {
           expect(res.body).to.be.an('object');
           expect(res.body).to.have.keys('id', 'username', 'fullname');
           expect(res.body.id).to.exist;
-          expect(res.body.username).to.equal(username);
+          expect(res.body.username).to.equal(username.toLowerCase());
           expect(res.body.fullname).to.equal(fullname);
           return User.findOne({ username });
         })
